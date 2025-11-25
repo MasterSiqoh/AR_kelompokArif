@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Planet Explorer</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f1b33 0%, #1a3a5f 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        a-scene {
+            display: block;
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        /* Hide the AR.js video element that appears outside the scene */
+        body > video {
+            display: none !important;
+        }
+        
+        .arjs-video {
+            display: none !important;
+        }
+        
+        .header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 95vw;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .ar-container {
+            width: 100%;
+            max-width: 95vw;
+            aspect-ratio: 16 / 9;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .ar-container a-scene {
+            width: 100% !important;
+            height: 100% !important;
+            position: relative !important;
+        }
+        
+        .ar-container .a-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+        
+        .ar-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            position: relative !important;
+        }
+        
+        .ar-container video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+        
+        .info-panel {
+            background: linear-gradient(135deg, #1e4ba8 0%, #2563d6 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 0;
+            margin: 20px auto;
+            max-width: 95vw;
+            transition: max-height 0.4s ease;
+            max-height: 200px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .info-panel.expanded {
+            max-height: 650px;
+        }
+        
+        .info-header {
+            background: rgba(109, 137, 255, 0.6);
+            padding: 15px 25px;
+            border-radius: 20px;
+            margin: 15px;
+            text-align: center;
+        }
+        
+        .info-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .planet-image-section {
+            display: none;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .info-panel.expanded .planet-image-section {
+            display: block;
+        }
+        
+        .planet-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .planet-image img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        .info-content {
+            background: rgba(109, 137, 255, 0.6);
+            padding: 20px 25px;
+            border-radius: 20px;
+            margin: 0 15px 15px;
+            line-height: 1.8;
+            color: white;
+            display: none;
+            min-height: 150px;
+        }
+        
+        .info-panel.expanded .info-content {
+            display: block;
+        }
+        
+        .toggle-btn-container {
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .toggle-btn {
+            background: rgba(109, 137, 255, 0.8);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 1.5rem;
+            line-height: 1;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 0;
+        }
+        
+        .toggle-btn:hover {
+            background: rgba(109, 137, 255, 1);
+        }
+        
+        .toggle-btn.rotated {
+            transform: rotate(180deg) !important;
+        }
+        
+        .toggle-btn.rotated:hover {
+            transform: rotate(180deg) scale(1.05) !important;
+        }
+        
+        .toggle-btn:not(.rotated):hover {
+            transform: scale(1.05);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .marker-info {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .hint {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">MarkerSurya AR</div>
+    </div>
+    
+    <div class="container">
+        <div class="ar-container">
+            <!-- AR.js scene -->
+            <a-scene 
+                embedded
+                arjs="sourceType: webcam; debugUIEnabled: false; videoTexture: true;"
+                vr-mode-ui="enabled: false"
+                renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;"
+                style="width: 100%; height: 100%;"
+            >
+                <!-- Barcode 0: Sun -->
+                <a-marker type="barcode" value="0">
+                    <a-entity 
+                        id="sun-model"
+                        gltf-model="Assets/sun.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 20000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <!-- Barcode 1: Mercury -->
+                <a-marker type="barcode" value="1">
+                    <a-entity 
+                        id="mercury-model"
+                        gltf-model="Assets/mercurio.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 8000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <!-- Barcode 10: Venus -->
+                <a-marker type="barcode" value="10">
+                    <a-entity 
+                        id="venus-model"
+                        gltf-model="Assets/venus.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 9000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <!-- Barcode 11: Earth -->
+                <a-marker type="barcode" value="11">
+                    <a-entity 
+                        id="earth-model"
+                        gltf-model="Assets/earth.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <!-- Barcode 12: Mars -->
+                <a-marker type="barcode" value="12">
+                    <a-entity 
+                        id="mars-model"
+                        gltf-model="Assets/mars.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 12000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <!-- Barcode 13: Jupiter -->
+                <a-marker type="barcode" value="13">
+                    <a-entity 
+                        id="jupiter-model"
+                        gltf-model="Assets/jupiter.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 18000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <!-- Barcode 14: Saturn -->
+                <a-marker type="barcode" value="14">
+                    <a-entity 
+                        id="saturn-model"
+                        gltf-model="Assets/saturn.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 20000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <!-- Barcode 15: Uranus -->
+                <a-marker type="barcode" value="15">
+                    <a-entity 
+                        id="uranus-model"
+                        gltf-model="Assets/uranus.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 15000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <!-- Barcode 16: Neptune -->
+                <a-marker type="barcode" value="16">
+                    <a-entity 
+                        id="neptune-model"
+                        gltf-model="Assets/neptunus.glb"
+                        scale="0.5 0.5 0.5"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 16000"
+                        class="clickable"
+                    ></a-entity>
+                </a-marker>
+                
+                <a-entity camera></a-entity>
+            </a-scene>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="control-btn" id="zoomInBtn">
+            <span>+</span> Zoom In
+        </button>
+        <button class="control-btn" id="zoomOutBtn">
+            <span>-</span> Zoom Out
+        </button>
+        <button class="control-btn" id="resetBtn">
+            <span>↺</span> Reset
+        </button>
+        <button class="control-btn" id="debugBtn">
+            <span>🐛</span> Debug
+        </button>
+    </div>
+    
+    <div class="info-panel" id="infoPanel">
+        <div class="info-header">
+            <div class="info-title" id="planetName">Mohon scan barcode terlebih dahulu</div>
+        </div>
+        <div class="planet-image-section" id="planetImageSection">
+            <div class="planet-image">
+                <img id="planetImage" src="" alt="Planet" style="display: none;">
+                <p id="imagePlaceholder" style="color: #666; font-size: 0.9rem;"></p>
+            </div>
+        </div>
+        <div class="info-content" id="infoContent">
+            <div id="planetDescription"></div>
+        </div>
+        <div class="toggle-btn-container">
+            <button class="toggle-btn" id="toggleBtn">▼</button>
+        </div>
+    </div>
+    
+    <div class="hint">
+        Allow camera access when prompted. Make sure you're in a well-lit area.
+    </div>
+
+    <script>
+        // Load planet data from JSON
+        let planetsData = {};
+        
+        fetch('planets.json')
+            .then(response => response.json())
+            .then(data => {
+                planetsData = data.planets;
+                console.log('Planet data loaded:', planetsData);
+            })
+            .catch(error => console.error('Error loading planet data:', error));
+        
+        // Map barcode values to planet keys
+        const barcodeMap = {
+            0: 'sun',
+            1: 'mercury',
+            10: 'venus',
+            11: 'earth',
+            12: 'mars',
+            13: 'jupiter',
+            14: 'saturn',
+            15: 'uranus',
+            16: 'neptune'
+        };
+        
+        // Toggle info panel
+        const toggleBtn = document.getElementById('toggleBtn');
+        const infoPanel = document.getElementById('infoPanel');
+        
+        toggleBtn.addEventListener('click', function() {
+            infoPanel.classList.toggle('expanded');
+            toggleBtn.classList.toggle('rotated');
+        });
+        
+        // Model scaling controls
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        let currentScale = 0.5;
+        
+        zoomInBtn.addEventListener('click', function() {
+            currentScale = Math.min(2, currentScale + 0.1);
+            updateModelScale();
+        });
+        
+        zoomOutBtn.addEventListener('click', function() {
+            currentScale = Math.max(0.1, currentScale - 0.1);
+            updateModelScale();
+        });
+        
+        resetBtn.addEventListener('click', function() {
+            currentScale = 0.5;
+            updateModelScale();
+        });
+        
+        // Debug button to load Earth information
+        const debugBtn = document.getElementById('debugBtn');
+        debugBtn.addEventListener('click', function() {
+            console.log('Debug: Loading Earth information');
+            updatePlanetInfo('earth');
+        });
+        
+        function updateModelScale() {
+            const modelIds = ['sun-model', 'mercury-model', 'venus-model', 'earth-model', 'mars-model', 
+                            'jupiter-model', 'saturn-model', 'uranus-model', 'neptune-model'];
+            
+            modelIds.forEach(id => {
+                const model = document.getElementById(id);
+                if (model) {
+                    model.setAttribute('scale', `${currentScale} ${currentScale} ${currentScale}`);
+                }
+            });
+        }
+        
+        // Function to update planet information display
+        function updatePlanetInfo(planetKey) {
+            const planet = planetsData[planetKey];
+            if (!planet) return;
+            
+            // Update planet name
+            document.getElementById('planetName').textContent = planet.name;
+            
+            // Update planet image
+            const planetImage = document.getElementById('planetImage');
+            const imagePlaceholder = document.getElementById('imagePlaceholder');
+            const imageFileName = planetKey === 'mercury' ? 'mercurio.jpg' : `${planetKey}.jpg`;
+            
+            planetImage.src = `Assets/${imageFileName}`;
+            planetImage.style.display = 'block';
+            imagePlaceholder.style.display = 'none';
+            
+            // Update planet description with detailed info
+            document.getElementById('planetDescription').innerHTML = `
+                <p style="margin-bottom: 15px;">${planet.description}</p>
+                <p><strong>Diameter:</strong> ${planet.diameter}</p>
+                <p><strong>Massa:</strong> ${planet.mass}</p>
+                <p><strong>Jarak dari Matahari:</strong> ${planet.distanceFromSun}</p>
+                <p><strong>Periode Orbit:</strong> ${planet.orbitalPeriod}</p>
+            `;
+            
+            // Auto-expand panel when marker is detected
+            if (!infoPanel.classList.contains('expanded')) {
+                infoPanel.classList.add('expanded');
+                toggleBtn.classList.add('rotated');
+            }
+        }
+        
+        // Listen for marker detection events
+        document.addEventListener('DOMContentLoaded', function() {
+            const scene = document.querySelector('a-scene');
+            
+            if (scene) {
+                // Add marker found listeners for each barcode
+                Object.entries(barcodeMap).forEach(([barcode, planetKey]) => {
+                    const marker = document.querySelector(`a-marker[value="${barcode}"]`);
+                    if (marker) {
+                        marker.addEventListener('markerFound', function() {
+                            console.log(`Marker ${barcode} (${planetKey}) detected`);
+                            updatePlanetInfo(planetKey);
+                        });
+                        
+                        marker.addEventListener('markerLost', function() {
+                            console.log(`Marker ${barcode} (${planetKey}) lost`);
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
