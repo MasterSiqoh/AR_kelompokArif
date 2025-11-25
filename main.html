@@ -520,25 +520,32 @@
         }
         
         // Listen for marker detection events
-        document.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('load', function() {
             const scene = document.querySelector('a-scene');
             
-            if (scene) {
+            // Wait for A-Frame to initialize
+            scene.addEventListener('loaded', function() {
+                console.log('A-Frame scene loaded, setting up markers...');
+                
                 // Add marker found listeners for each barcode
                 Object.entries(barcodeMap).forEach(([barcode, planetKey]) => {
                     const marker = document.querySelector(`a-marker[value="${barcode}"]`);
+                    console.log(`Setting up marker ${barcode} for ${planetKey}:`, marker);
+                    
                     if (marker) {
                         marker.addEventListener('markerFound', function() {
-                            console.log(`Marker ${barcode} (${planetKey}) detected`);
+                            console.log(`✓ Marker ${barcode} (${planetKey}) detected!`);
                             updatePlanetInfo(planetKey);
                         });
                         
                         marker.addEventListener('markerLost', function() {
-                            console.log(`Marker ${barcode} (${planetKey}) lost`);
+                            console.log(`✗ Marker ${barcode} (${planetKey}) lost`);
                         });
+                    } else {
+                        console.warn(`Marker ${barcode} not found in DOM`);
                     }
                 });
-            }
+            });
         });
     </script>
 </body>
