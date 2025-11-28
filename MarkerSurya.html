@@ -1,0 +1,269 @@
+<!doctype HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Pattern Demo</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <!-- Menggunakan CDN yang lebih stable -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+</head>
+
+<body style="margin: 0px; overflow: hidden;">
+    <!-- Loading indicator -->
+    <div id="loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: Arial; z-index: 1000;">
+        Loading AR... Please allow camera access.
+    </div>
+
+    <!-- Size Control UI -->
+    <div id="controls" style="position: absolute; top: 10px; left: 10px; z-index: 1000; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 5px; color: white; font-family: Arial; min-width: 200px;">
+        <div style="margin-bottom: 8px;">Size Control:</div>
+        <input type="range" id="sizeSlider" min="0.1" max="10" step="0.1" value="1" 
+               oninput="changeSizeFromSlider(this.value)" 
+               style="width: 100%; cursor: pointer;">
+        <div style="margin-top: 5px; text-align: center;">Current: <span id="currentSize">1.0x</span></div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div style="position: absolute; bottom: 0; left: 0; width: 100%; z-index: 1000; background: rgba(0,0,0,0.7); padding: 15px; text-align: center; color: white; font-family: Arial; font-size: 18px; font-weight: bold;">
+        MarkerSurya
+    </div>
+
+    <a-scene embedded vr-mode-ui="enabled: false;" arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
+
+        <a-assets>
+            <!-- GLB models -->
+            <a-asset-item id="sunModelAsset" src="assets/sun.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="mercurioModelAsset" src="assets/mercurio.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="venusModelAsset" src="assets/venus.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="earthModelAsset" src="assets/earth.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="marsModelAsset" src="assets/mars.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="jupiterModelAsset" src="assets/jupiter.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="saturnModelAsset" src="assets/saturn.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="uranusModelAsset" src="assets/uranus.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            <a-asset-item id="neptunusModelAsset" src="assets/neptunus.glb" crossorigin="anonymous" response-type="arraybuffer"></a-asset-item>
+            
+            <!-- Audio files -->
+            <audio id="sunAudio" src="voice/sun.mp3" preload="auto"></audio>
+            <audio id="mercurioAudio" src="voice/mercurio.mp3" preload="auto"></audio>
+            <audio id="venusAudio" src="voice/venus.mp3" preload="auto"></audio>
+            <audio id="earthAudio" src="voice/earth.mp3" preload="auto"></audio>
+            <audio id="marsAudio" src="voice/mars.mp3" preload="auto"></audio>
+            <audio id="jupiterAudio" src="voice/jupiter.mp3" preload="auto"></audio>
+            <audio id="saturnAudio" src="voice/saturn.mp3" preload="auto"></audio>
+            <audio id="uranusAudio" src="voice/uranus.mp3" preload="auto"></audio>
+            <audio id="neptunusAudio" src="voice/neptunus.mp3" preload="auto"></audio>
+        </a-assets>
+
+        <!-- Marker: Sun Pattern -> sun.glb -->
+        <a-marker type="pattern" url="pattern/pattern-sun.patt" id="marker-sun">
+            <a-box id="fallback-sun" class="scale-target" position="0 0.5 0" scale="1 1 1" color="yellow"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-sun" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#sunModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <!-- Marker: Mercury Pattern -> mercurio.glb -->
+        <a-marker type="pattern" url="pattern/pattern-mercurio.patt" id="marker-mercurio">
+            <a-box id="fallback-mercurio" class="scale-target" position="0 0.5 0" scale="1 1 1" color="gray"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-mercurio" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#mercurioModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <!-- Marker: Venus Pattern -> venus.glb -->
+        <a-marker type="pattern" url="pattern/pattern-venus.patt" id="marker-venus">
+            <a-box id="fallback-venus" class="scale-target" position="0 0.5 0" scale="1 1 1" color="orange"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-venus" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#venusModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <!-- Marker: Earth Pattern -> earth.glb -->
+        <a-marker type="pattern" url="pattern/pattern-earth.patt" id="marker-earth">
+            <a-box id="fallback-earth" class="scale-target" position="0 0.5 0" scale="1 1 1" color="blue"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-earth" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#earthModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <!-- Marker: Mars Pattern -> mars.glb -->
+        <a-marker type="pattern" url="pattern/pattern-mars.patt" id="marker-mars">
+            <a-box id="fallback-mars" class="scale-target" position="0 0.5 0" scale="1 1 1" color="red"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-mars" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#marsModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <!-- Marker: Jupiter Pattern -> jupiter.glb -->
+        <a-marker type="pattern" url="pattern/pattern-jupiter.patt" id="marker-jupiter">
+            <a-box id="fallback-jupiter" class="scale-target" position="0 0.5 0" scale="1 1 1" color="brown"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-jupiter" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#jupiterModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <!-- Marker: Saturn Pattern -> saturn.glb -->
+        <a-marker type="pattern" url="pattern/pattern-saturn.patt" id="marker-saturn">
+            <a-box id="fallback-saturn" class="scale-target" position="0 0.5 0" scale="1 1 1" color="gold"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-saturn" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#saturnModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <!-- Marker: Uranus Pattern -> uranus.glb -->
+        <a-marker type="pattern" url="pattern/pattern-uranus.patt" id="marker-uranus">
+            <a-box id="fallback-uranus" class="scale-target" position="0 0.5 0" scale="1 1 1" color="cyan"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-uranus" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#uranusModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <!-- Marker: Neptune Pattern -> neptunus.glb -->
+        <a-marker type="pattern" url="pattern/pattern-neptunus.patt" id="marker-neptunus">
+            <a-box id="fallback-neptunus" class="scale-target" position="0 0.5 0" scale="1 1 1" color="darkblue"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 2000"></a-box>
+            <a-entity id="entity-neptunus" class="scale-target" position="0 0 0" rotation="0 0 0" scale="1 1 1"
+                      gltf-model="#neptunusModelAsset" visible="false">
+                <a-light type="point" intensity="2" distance="50" color="#fff"></a-light>
+            </a-entity>
+        </a-marker>
+
+        <a-entity light="type: ambient; color: #BBB; intensity: 0.8"></a-entity>
+        <a-entity camera arjs-look-controls="smoothingFactor: 0.1"></a-entity>
+    </a-scene>
+
+    <script>
+        // Function to change object size for all targets
+        function changeSize(scale) {
+            const currentSizeDisplay = document.getElementById('currentSize');
+            document.querySelectorAll('.scale-target').forEach(el => {
+                el.setAttribute('scale', `${scale} ${scale} ${scale}`);
+            });
+            currentSizeDisplay.textContent = `${scale.toFixed(1)}x`;
+            console.log(`Object size changed to: ${scale}x`);
+        }
+
+        // Function to change size from slider
+        function changeSizeFromSlider(value) {
+            const scale = parseFloat(value);
+            changeSize(scale);
+        }
+
+        // Hide loading indicator when scene is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const loading = document.getElementById('loading');
+                if (loading) loading.style.display = 'none';
+            }, 3000);
+            // Helper to wire model load/error per pair
+            function wireModel(entityId, fallbackId, label, assetId) {
+                const entity = document.getElementById(entityId);
+                const fallback = document.getElementById(fallbackId);
+                const asset = document.getElementById(assetId);
+                if (!entity || !fallback) return;
+
+                entity.addEventListener('model-loaded', function () {
+                    console.log(`${label}: model loaded`);
+                    entity.setAttribute('visible', true);
+                    fallback.setAttribute('visible', false);
+                });
+
+                entity.addEventListener('model-error', function (event) {
+                    console.error(`${label}: model failed to load`, event.detail || '');
+                    fallback.setAttribute('color', 'yellow');
+                    fallback.setAttribute('visible', true);
+                    entity.setAttribute('visible', false);
+                });
+
+                if (asset) {
+                    asset.addEventListener('error', function () {
+                        console.error(`${label}: asset failed to load (${asset.getAttribute('src')})`);
+                        console.log('Possible issues:');
+                        console.log('1. File path is incorrect');
+                        console.log('2. File does not exist');
+                        console.log('3. File format is not supported');
+                        console.log('4. File is corrupted');
+                        fallback.setAttribute('color', 'orange');
+                    });
+                }
+
+                setTimeout(() => {
+                    if (entity.getAttribute('visible') !== true) {
+                        console.warn(`${label}: model did not load within 5 seconds, keeping fallback`);
+                        fallback.setAttribute('color', '#00BFFF');
+                        fallback.setAttribute('visible', true);
+                    }
+                }, 5000);
+            }
+
+            // Wire all planet markers/models
+            wireModel('entity-sun', 'fallback-sun', 'Sun pattern -> sun', 'sunModelAsset');
+            wireModel('entity-mercurio', 'fallback-mercurio', 'Mercury pattern -> mercurio', 'mercurioModelAsset');
+            wireModel('entity-venus', 'fallback-venus', 'Venus pattern -> venus', 'venusModelAsset');
+            wireModel('entity-earth', 'fallback-earth', 'Earth pattern -> earth', 'earthModelAsset');
+            wireModel('entity-mars', 'fallback-mars', 'Mars pattern -> mars', 'marsModelAsset');
+            wireModel('entity-jupiter', 'fallback-jupiter', 'Jupiter pattern -> jupiter', 'jupiterModelAsset');
+            wireModel('entity-saturn', 'fallback-saturn', 'Saturn pattern -> saturn', 'saturnModelAsset');
+            wireModel('entity-uranus', 'fallback-uranus', 'Uranus pattern -> uranus', 'uranusModelAsset');
+            wireModel('entity-neptunus', 'fallback-neptunus', 'Neptune pattern -> neptunus', 'neptunusModelAsset');
+
+            // Setup audio playback on marker detection
+            const markers = [
+                { id: 'marker-sun', audioId: 'sunAudio' },
+                { id: 'marker-mercurio', audioId: 'mercurioAudio' },
+                { id: 'marker-venus', audioId: 'venusAudio' },
+                { id: 'marker-earth', audioId: 'earthAudio' },
+                { id: 'marker-mars', audioId: 'marsAudio' },
+                { id: 'marker-jupiter', audioId: 'jupiterAudio' },
+                { id: 'marker-saturn', audioId: 'saturnAudio' },
+                { id: 'marker-uranus', audioId: 'uranusAudio' },
+                { id: 'marker-neptunus', audioId: 'neptunusAudio' }
+            ];
+
+            markers.forEach(marker => {
+                const markerEl = document.getElementById(marker.id);
+                const audio = document.getElementById(marker.audioId);
+                
+                if (markerEl && audio) {
+                    markerEl.addEventListener('markerFound', function() {
+                        audio.currentTime = 0;
+                        audio.play().catch(e => console.log('Audio play failed:', e));
+                        console.log(`Playing audio for ${marker.id}`);
+                    });
+
+                    markerEl.addEventListener('markerLost', function() {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        console.log(`Stopped audio for ${marker.id}`);
+                    });
+                }
+            });
+        });
+
+        // Error handling
+        window.addEventListener('error', function(e) {
+            console.error('Error:', e.error);
+            document.getElementById('loading').innerHTML = 'Error loading AR. Check console for details.';
+        });
+    </script>
+</body>
+
+</html>
